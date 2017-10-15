@@ -32,7 +32,7 @@ public class EventDatesFragment extends Fragment {
 
     public boolean isStartDateSelected = true;
     private final long DEFAULT_MIN_END_DATE_DIFFERENCE = 60 * 60 * 1000;    // 1 Hour
-    private final long DEFAULT_MIN_START_DATE_DIFFERENCE = 5 * 60 * 1000;  // 10 minutes
+    private final long DEFAULT_MIN_START_DATE_DIFFERENCE = 15 * 60 * 1000;  // 10 minutes
     public EventDatesFragment() {
         // Required empty public constructor
     }
