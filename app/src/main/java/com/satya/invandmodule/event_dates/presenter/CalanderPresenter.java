@@ -91,7 +91,7 @@ public class CalanderPresenter {
         departCal.set(Calendar.MILLISECOND,0);
 
         if(startDate==null){
-            startDate=departCal.getTime();
+            startDate=new Date();
         }
         startDate(startDate,getMonth(startDate));
 

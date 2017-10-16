@@ -38,7 +38,7 @@ public class TimePicker extends LinearLayout implements ITimerInterface{
     public Date finalStartDate;
 //    public int selectedHr,selectedMin;
     public Switch amPmSwitch;
-    public int presentHr, presentMin;
+
     public int stHours , stMinutes ;
     public boolean stIsAm;
     public int prHours , prMinutes;
@@ -82,23 +82,15 @@ public class TimePicker extends LinearLayout implements ITimerInterface{
 
     public void initViews(final Context context) {
         presentDate = new Date() ;
-        startDate = new Date();
-        int temp = startDate.getMinutes();
-//        startDate.setMinutes(temp + 10);
-//
+        startDate = presentDate;
+
         prHours = presentDate.getHours();
         prMinutes = presentDate.getMinutes();
         stHours = startDate.getHours();
         stMinutes = startDate.getMinutes();
         prIsAm = isAm(prHours);
         stIsAm = isAm(stHours);
-//        minuts = presentDate.getMinutes();
-//        hours = presentDate.getHours();
-//        isAm =  giveAmPm(hours);
-        presentMin = presentDate.getMinutes();
-        presentHr = presentDate.getHours();
-//        Log.d("hours",String.valueOf(hours));
-//        Log.d("minuts",String.valueOf(minuts));
+
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.time_picker_view_, this);
         hoursRecyclerview = (RecyclerView) findViewById(R.id.hours_recyclerview);
@@ -216,7 +208,6 @@ public class TimePicker extends LinearLayout implements ITimerInterface{
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(compareDates(presentDate,startDate) == 0){
-
                         amPmSwitch.setChecked(isChecked);
                         stIsAm = isChecked;
 //                        isAm = !isChecked;
@@ -224,7 +215,7 @@ public class TimePicker extends LinearLayout implements ITimerInterface{
                         scrollListToPositionDate(minutesRecyclerview,stMinutes - 1,false);
 //                        mcheckEnableScrolling(true);
 //                        mcheckEnableScrolling(false);
-//                        prepareDate();
+                        //prepareDate();
 //                        checkEnableScrolling(true);
 //                        checkEnableScrolling(false);
                     }
@@ -275,9 +266,9 @@ public class TimePicker extends LinearLayout implements ITimerInterface{
         return a;
 
     }
-    public int get24Hours(boolean isAm,int hours){
+    public int get24Hours(int hours){
         int a = 0;
-        if(isAm){
+        if(stIsAm){
             if(hours == 12){
                 a = 00;
             }else {
@@ -399,7 +390,7 @@ public class TimePicker extends LinearLayout implements ITimerInterface{
             int expectedPositionDateColor = Math.round((allPixelsDate + paddingDate - firstItemWidthDate) / itemWidthDate);
             int setColorDate = expectedPositionDateColor + 1;
             //set color here
-            stHours = get24Hours(amPmSwitch.isChecked(),expectedPositionDateColor +1);
+            stHours = get24Hours(setColorDate);
             if(mcheckEnableScrolling(true)){
                 hoursAdapter.setSelecteditem(setColorDate, true);
                 stHours = expectedPositionDateColor +1 ;
@@ -410,8 +401,9 @@ public class TimePicker extends LinearLayout implements ITimerInterface{
             int expectedPositionDateColor = Math.round((mAllPixelsDate + mPaddingDate - mFirstItemWidthDate) / mItemWidthDate);
             int setColorDate = expectedPositionDateColor + 1;
             //set color here
-            stMinutes = setColorDate;
+
             if(mcheckEnableScrolling(false)){
+                stMinutes = setColorDate;
                 minutesAdapter.setSelecteditem(setColorDate, false);
                 stMinutes = expectedPositionDateColor + 1 ;
                 prepareDate();
@@ -446,6 +438,7 @@ public class TimePicker extends LinearLayout implements ITimerInterface{
         if (compareDates(presentDate, startDate) == 0) {
             if (!isHours) {
                 if (prHours == stHours && stMinutes + 1 < prMinutes) {
+                    stMinutes = prMinutes;
                     mscrollListToPositionDate(minutesRecyclerview, prMinutes - 1, false);
                     amPmSwitch.setChecked(prIsAm);
                     return false;
@@ -453,6 +446,7 @@ public class TimePicker extends LinearLayout implements ITimerInterface{
                 return true;
             } else {
                 if (prHours > stHours) {
+                    stHours = prHours;
                     mscrollListToPositionDate(hoursRecyclerview, get12HoursFormat(prHours) - 1, true);
                     amPmSwitch.setChecked(prIsAm);
                     return false;
@@ -489,10 +483,13 @@ public class TimePicker extends LinearLayout implements ITimerInterface{
         int a = compareDates(startDate , presentDate);
         if(a == 0){
             if(stHours > prHours){
+                stIsAm = isAm(startDate.getHours());
                 prepareHoursMinuts(startDate);
 
             }else {
+
                 startDate = new Date();
+                stIsAm = isAm(startDate.getHours());
                 int temp = startDate.getMinutes();
 //                startDate.setMinutes(temp + 10);
                 stHours = startDate.getHours();
@@ -502,6 +499,7 @@ public class TimePicker extends LinearLayout implements ITimerInterface{
 
 //
         }else if(a == 1){
+            stIsAm = isAm(startDate.getHours());
             startDate.setHours(stHours);
             startDate.setMinutes(stMinutes);
             prepareHoursMinuts(startDate);
@@ -551,10 +549,11 @@ public class TimePicker extends LinearLayout implements ITimerInterface{
     }
 
     public void prepareDate(){
-        finalStartDate = new Date();
+        finalStartDate = null;
         finalStartDate = startDate;
         finalStartDate.setMinutes(stMinutes);
-        finalStartDate.setHours(get24Hours(stIsAm , stMinutes));
+        finalStartDate.setHours(get24Hours(stHours));
+//        amPmSwitch.setChecked(isAm(get24Hours(stHours)));
         if(event != null){
             event.startDate(finalStartDate);
         }
