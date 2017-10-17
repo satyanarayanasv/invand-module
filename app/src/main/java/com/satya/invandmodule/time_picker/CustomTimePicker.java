@@ -417,47 +417,95 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
 
     private void checkingScrollingEnable(boolean isHours,int selectedHour){
         if(isHours){
-            if(startDate.getDate() == startDate.getDate()){
-                int i = get24HoursFormat(amPmSwitch.isChecked(),selectedHour);
-                if(minDate.getHours() <= i){
+
+            if(minDate.getDate() == startDate.getDate()){
+                if(minDate.getHours() <= get24HoursFormat(amPmSwitch.isChecked(),selectedHour)){
                     hoursAdapter.setSelecteditem(selectedHour, true);
                     selectedHr = selectedHour;
                     prepareFinalDate();
+
                 }else {
                     amPmSwitch.setOnCheckedChangeListener(null);
                     amPmSwitch.setChecked(getAmPm(startDate.getHours()));
                     amPmSwitch.setOnCheckedChangeListener(listener);
                     mScrollListToPositionDate(hoursRecyclerview,get12HoursFormat(startDate.getHours() ) -1,true,false);
-
                 }
-            }else if(minDate.before(startDate)){
+            }else {
                 hoursAdapter.setSelecteditem(selectedHour, true);
                 selectedHr = selectedHour;
                 prepareFinalDate();
             }
 
-        }else {
-            if(minDate.getDate() == startDate.getDate()) {
 
-                    if (startDate.getHours() <= get24HoursFormat(amPmSwitch.isChecked(), selectedHr)) {
+
+//            if(startDate.getDate() == startDate.getDate()){
+//                int i = get24HoursFormat(amPmSwitch.isChecked(),selectedHour);
+//                if(minDate.getHours() <= i){
+//                    hoursAdapter.setSelecteditem(selectedHour, true);
+//                    selectedHr = selectedHour;
+//                    prepareFinalDate();
+//                }else {
+//                    amPmSwitch.setOnCheckedChangeListener(null);
+//                    amPmSwitch.setChecked(getAmPm(startDate.getHours()));
+//                    amPmSwitch.setOnCheckedChangeListener(listener);
+//                    mScrollListToPositionDate(hoursRecyclerview,get12HoursFormat(startDate.getHours() ) -1,true,false);
+//
+//                }
+//            }else if(minDate.before(startDate)){
+//                hoursAdapter.setSelecteditem(selectedHour, true);
+//                selectedHr = selectedHour;
+//                prepareFinalDate();
+//            }
+
+        }else {
+
+            if(minDate.getDate() == startDate.getDate()){
+                if(minDate.getHours() < get24HoursFormat(amPmSwitch.isChecked(),selectedHr)){
+                    minutesAdapter.setSelecteditem(selectedHour, false);
+                    selectedMin = selectedHour;
+                    prepareFinalDate();
+                }else if(minDate.getHours() == get24HoursFormat(amPmSwitch.isChecked(),selectedHr)){
+                    if(minDate.getMinutes() <= selectedHour){
                         minutesAdapter.setSelecteditem(selectedHour, false);
                         selectedMin = selectedHour;
                         prepareFinalDate();
-                    } else {
-                        if (startDate.getMinutes() <= selectedHour) {
-                            minutesAdapter.setSelecteditem(selectedHour, false);
-                            selectedMin = selectedHour;
-                            prepareFinalDate();
-                        } else {
-                            mScrollListToPositionDate(minitesRecyclerview, startDate.getMinutes() - 1, false, false);
-                        }
-                    }
 
-            }else if(minDate.after(startDate)){
+                    }else {
+                        mScrollListToPositionDate(minitesRecyclerview, minDate.getMinutes() - 1, false, false);
+                    }
+                }
+            }else {
                 minutesAdapter.setSelecteditem(selectedHour,false);
                 selectedMin = selectedHour;
                 prepareFinalDate();
             }
+
+
+
+
+
+
+//            if(minDate.getDate() == startDate.getDate()) {
+//
+//                    if (startDate.getHours() <= get24HoursFormat(amPmSwitch.isChecked(), selectedHr)) {
+//                        minutesAdapter.setSelecteditem(selectedHour, false);
+//                        selectedMin = selectedHour;
+//                        prepareFinalDate();
+//                    } else {
+//                        if (startDate.getMinutes() <= selectedHour) {
+//                            minutesAdapter.setSelecteditem(selectedHour, false);
+//                            selectedMin = selectedHour;
+//                            prepareFinalDate();
+//                        } else {
+//                            mScrollListToPositionDate(minitesRecyclerview, startDate.getMinutes() - 1, false, false);
+//                        }
+//                    }
+//
+//            }else if(minDate.after(startDate)){
+//                minutesAdapter.setSelecteditem(selectedHour,false);
+//                selectedMin = selectedHour;
+//                prepareFinalDate();
+//            }
         }
 
 
