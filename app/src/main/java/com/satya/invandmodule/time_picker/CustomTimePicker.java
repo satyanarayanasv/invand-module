@@ -417,9 +417,9 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
 
     private void checkingScrollingEnable(boolean isHours,int selectedHour){
         if(isHours){
-            if(minDate.getDate() == startDate.getDate()){
+            if(startDate.getDate() == startDate.getDate()){
                 int i = get24HoursFormat(amPmSwitch.isChecked(),selectedHour);
-                if(startDate.getHours() <= i){
+                if(minDate.getHours() <= i){
                     hoursAdapter.setSelecteditem(selectedHour, true);
                     selectedHr = selectedHour;
                     prepareFinalDate();
@@ -438,19 +438,21 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
 
         }else {
             if(minDate.getDate() == startDate.getDate()) {
-                if (startDate.getHours() < get24HoursFormat(amPmSwitch.isChecked(),selectedHr)) {
-                    minutesAdapter.setSelecteditem(selectedHour, false);
-                    selectedMin = selectedHour;
-                    prepareFinalDate();
-                } else {
-                    if (startDate.getMinutes() <= selectedHour) {
+
+                    if (startDate.getHours() <= get24HoursFormat(amPmSwitch.isChecked(), selectedHr)) {
                         minutesAdapter.setSelecteditem(selectedHour, false);
                         selectedMin = selectedHour;
                         prepareFinalDate();
                     } else {
-                        mScrollListToPositionDate(minitesRecyclerview, startDate.getMinutes() - 1, false, false);
+                        if (startDate.getMinutes() <= selectedHour) {
+                            minutesAdapter.setSelecteditem(selectedHour, false);
+                            selectedMin = selectedHour;
+                            prepareFinalDate();
+                        } else {
+                            mScrollListToPositionDate(minitesRecyclerview, startDate.getMinutes() - 1, false, false);
+                        }
                     }
-                }
+
             }else if(minDate.after(startDate)){
                 minutesAdapter.setSelecteditem(selectedHour,false);
                 selectedMin = selectedHour;
