@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewTreeObserver;
 import android.widget.CompoundButton;
@@ -14,6 +15,7 @@ import android.widget.Switch;
 import com.satya.invandmodule.R;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -40,6 +42,8 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
     public TimeAdapter hoursAdapter , minutesAdapter;
     public RecyclerView hoursRecyclerview , minitesRecyclerview;
     public Switch amPmSwitch;
+    public CompoundButton.OnCheckedChangeListener listener;
+    private TimePickerEventListener timePickerEventListener;
 
     public Date getMinDate() {
         return minDate;
@@ -47,17 +51,27 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
 
     public void setMinDate(Date minDate) {
         this.minDate = minDate;
-        calculatePositionAndScrollDate(hoursRecyclerview,true);
-        calculatePositionAndScrollDate(minitesRecyclerview,false);
+//        update();
 
+    }
+
+    public void setTimePickerEventListener(TimePickerEventListener timePickerEventListener) {
+        this.timePickerEventListener = timePickerEventListener;
     }
 
     public Date getStartDate() {
         return startDate;
     }
+    public void update(){
+        scrollListToPositionDate(hoursRecyclerview,get12HoursFormat(startDate.getHours() )-1 ,true,true);
+        scrollListToPositionDate(minitesRecyclerview,get12HoursFormat(startDate.getMinutes())-1 ,false,true);
+        calculatePositionAndScrollDate(hoursRecyclerview,true);
+        calculatePositionAndScrollDate(minitesRecyclerview,false);
+    }
 
     public void setStartDate(Date startDate) {
         this.startDate = startDate;
+//        update();
     }
 
     public CustomTimePicker(Context context) {
@@ -84,6 +98,9 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
         amPmSwitch = (Switch)findViewById(R.id.switch1);
         startDate = new Date();
         minDate = new Date();
+        selectedHr = startDate.getHours();
+        selectedMin = startDate.getMinutes();
+
 
         isAm = getAmPm(startDate.getHours());
         ViewTreeObserver viewTreeObserver = hoursRecyclerview.getViewTreeObserver();
@@ -106,6 +123,7 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
 
                             if (newState == recyclerView.SCROLL_STATE_IDLE) {
                                 calculatePositionAndScrollDate(recyclerView, true);
+                                calculatePositionAndScrollDate(minitesRecyclerview,false);
                             }
                         }
 
@@ -122,12 +140,12 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
                 if(hoursData == null) {
                     hoursData = new ArrayList<LabelerData>();
                 }
-                    genLabelerDate();
-                    hoursAdapter = new TimeAdapter(hoursData,(int)hFirstItemWidthDate);
-                    hoursAdapter.setSelecteditem(0,true);
-                    hoursAdapter.anInterface = CustomTimePicker.this;
-                    hoursRecyclerview.setAdapter(hoursAdapter);
-                    scrollListToPositionDate(hoursRecyclerview,get12HoursFormat(startDate.getHours() )-1 ,true,true);
+                genLabelerDate();
+                hoursAdapter = new TimeAdapter(hoursData,(int)hFirstItemWidthDate);
+                hoursAdapter.setSelecteditem(0,true);
+                hoursAdapter.anInterface = CustomTimePicker.this;
+                hoursRecyclerview.setAdapter(hoursAdapter);
+                scrollListToPositionDate(hoursRecyclerview,get12HoursFormat(startDate.getHours() )-1 ,true,true);
 
                 return true;
             }
@@ -178,13 +196,15 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
             }
         });
 
+        amPmSwitch.setOnCheckedChangeListener(null);
         amPmSwitch.setChecked(getAmPm(startDate.getHours()));
-        amPmSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        listener = new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-               setChecked(isChecked);
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                setChecked(b);
             }
-        });
+        };
+        amPmSwitch.setOnCheckedChangeListener(listener);
 
 
     }
@@ -292,7 +312,7 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
                 recyclerView.smoothScrollBy((int) missingPxDate, 0);
             }
 
-                setDateValue(true,false);
+            setDateValue(true,false);
 
 
         }else {
@@ -302,7 +322,7 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
                 recyclerView.smoothScrollBy((int) missingPxDate, 0);
             }
 
-                setDateValue(false,false);
+            setDateValue(false,false);
 
 
 
@@ -313,16 +333,24 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
 
     public void setChecked(boolean isChecked){
         if(startDate.getDate() == minDate.getDate()){
-            startDate = new Date();
-            if(!isChecked){
-                amPmSwitch.setChecked(false);
-
+            if(getAmPm(startDate.getHours())){
+                amPmSwitch.setChecked(isChecked);
+                scrollListToPositionDate(hoursRecyclerview,startDate.getDate(),true,false);
             }else {
-                amPmSwitch.setChecked(true);
+                amPmSwitch.setChecked(!isChecked);
                 scrollListToPositionDate(hoursRecyclerview,startDate.getDate(),true,false);
             }
+//            startDate = new Date();
+//            if(!isChecked){
+//                amPmSwitch.setChecked(false);
+//
+//            }else {
+//                amPmSwitch.setChecked(true);
+//                scrollListToPositionDate(hoursRecyclerview,startDate.getDate(),true,false);
+//            }
         }else {
             amPmSwitch.setChecked(isChecked);
+            scrollListToPositionDate(hoursRecyclerview,startDate.getDate(),true,false);
         }
     }
 
@@ -357,6 +385,7 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
                 checkingScrollingEnable(true, setColorDate);
             }else {
                 hoursAdapter.setSelecteditem(setColorDate,true);
+                prepareFinalDate();
             }
 //            if(mcheckEnableScrolling(true)){
 //                hoursAdapter.setSelecteditem(setColorDate, true);
@@ -373,7 +402,7 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
                 checkingScrollingEnable(false, setColorDate);
             }else {
                 minutesAdapter.setSelecteditem(setColorDate, false);
-
+                prepareFinalDate();
             }
 
 //            if(mcheckEnableScrolling(false)){
@@ -393,32 +422,39 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
                 if(startDate.getHours() <= i){
                     hoursAdapter.setSelecteditem(selectedHour, true);
                     selectedHr = selectedHour;
+                    prepareFinalDate();
                 }else {
+                    amPmSwitch.setOnCheckedChangeListener(null);
                     amPmSwitch.setChecked(getAmPm(startDate.getHours()));
-                    mScrollListToPositionDate(hoursRecyclerview,get12HoursFormat(startDate.getHours() ) - 1,true,false);
+                    amPmSwitch.setOnCheckedChangeListener(listener);
+                    mScrollListToPositionDate(hoursRecyclerview,get12HoursFormat(startDate.getHours() ) -1,true,false);
 
                 }
-            }else if(minDate.after(startDate)){
+            }else if(minDate.before(startDate)){
                 hoursAdapter.setSelecteditem(selectedHour, true);
                 selectedHr = selectedHour;
+                prepareFinalDate();
             }
 
         }else {
             if(minDate.getDate() == startDate.getDate()) {
-                if (startDate.getHours() < selectedHour) {
+                if (startDate.getHours() < get24HoursFormat(amPmSwitch.isChecked(),selectedHr)) {
                     minutesAdapter.setSelecteditem(selectedHour, false);
                     selectedMin = selectedHour;
+                    prepareFinalDate();
                 } else {
                     if (startDate.getMinutes() <= selectedHour) {
-                    minutesAdapter.setSelecteditem(selectedHour, false);
+                        minutesAdapter.setSelecteditem(selectedHour, false);
                         selectedMin = selectedHour;
-                } else {
-                    mScrollListToPositionDate(minitesRecyclerview, startDate.getMinutes() - 1, false, false);
+                        prepareFinalDate();
+                    } else {
+                        mScrollListToPositionDate(minitesRecyclerview, startDate.getMinutes() - 1, false, false);
+                    }
                 }
-            }
             }else if(minDate.after(startDate)){
                 minutesAdapter.setSelecteditem(selectedHour,false);
                 selectedMin = selectedHour;
+                prepareFinalDate();
             }
         }
 
@@ -443,7 +479,26 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
         }
     }
 
+    private void prepareFinalDate(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(minDate);
+        calendar.set(Calendar.HOUR_OF_DAY,get24HoursFormat(amPmSwitch.isChecked(),selectedHr));
+        calendar.set(Calendar.MINUTE,selectedMin);
+        calendar.set(Calendar.SECOND,0);
+//        Date finalDate = null;
+//        finalDate = startDate;
+//        finalDate.setHours(get24HoursFormat(amPmSwitch.isChecked(),selectedHr));
+//        finalDate.setMinutes(selectedMin);
+//        finalDate.setSeconds(0);
+        if(timePickerEventListener != null){
+            timePickerEventListener.selectedDate(calendar.getTime());
+        }
+        Log.d("Final date ",calendar.getTime().toString());
+    }
 
+    public interface TimePickerEventListener{
+        void selectedDate(Date date);
+    }
 
     private void genLabelerDate() {
         for (int i = 0; i < 14; i++) {
