@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     private void clickBackBtn(){
         if(currentFragmentName.equalsIgnoreCase("event_dates")){
             backBtn.setVisibility(View.INVISIBLE);
+
             moveToTitleFramentFromdates();
             currentFragmentName = "event_title";
         }
@@ -87,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void moveToTitleFramentFromdates(){
+        eventTitleFragment.event_title.setFocusable(false);
+        eventTitleFragment.event_title.setFocusableInTouchMode(false);
         getSupportFragmentManager().beginTransaction().hide(eventDatesFragment).commit();
         getSupportFragmentManager().beginTransaction().show(eventTitleFragment).commit();
     }

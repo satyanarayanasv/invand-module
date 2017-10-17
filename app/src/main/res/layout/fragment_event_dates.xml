@@ -170,7 +170,7 @@
 
     </com.satya.invandmodule.event_dates.custom_.CustomCalendar>
 
-    <com.satya.invandmodule.time_picker.TimePicker
+    <com.satya.invandmodule.time_picker.CustomTimePicker
         android:id="@+id/time_picker"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -182,6 +182,6 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/custom_calendar">
 
-    </com.satya.invandmodule.time_picker.TimePicker>
+    </com.satya.invandmodule.time_picker.CustomTimePicker>
 
 </android.support.constraint.ConstraintLayout>

@@ -44,6 +44,53 @@ public class CustomCalendar extends LinearLayout implements ICalendarView, DayAd
         this.context = context;
     }
 
+    public int getNoOfMonths() {
+        return noOfMonths;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
+    public EventHandler getEventHandler() {
+        return eventHandler;
+    }
+
+    public MonthsAdapter getMonthsAdapter() {
+        return monthsAdapter;
+    }
+
+    public void setMonthsAdapter(MonthsAdapter monthsAdapter) {
+        this.monthsAdapter = monthsAdapter;
+    }
+
+    public boolean isStartDate() {
+        return isStartDate;
+    }
+
+    public void setStartDate(boolean startDate) {
+        isStartDate = startDate;
+    }
+
     public void setNoOfMonths(int noOfMonths) {
         this.noOfMonths = noOfMonths;
     }
@@ -60,6 +107,16 @@ public class CustomCalendar extends LinearLayout implements ICalendarView, DayAd
         this.context = context;
         initControl(context,attrs);
         invalidate();
+    }
+
+
+    public void callCalendarPresenter(){
+        if(calanderPresenter != null){
+            calanderPresenter.setStartDate(startDate);
+            calanderPresenter.setEndDate(endDate);
+            calanderPresenter.prepareCalenderMonths();
+        }
+
     }
 
     public void initControl(Context context, AttributeSet attributeSet) {
