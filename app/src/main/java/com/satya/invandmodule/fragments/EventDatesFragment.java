@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.satya.invandmodule.R;
 import com.satya.invandmodule.event_dates.custom_.CustomCalendar;
+import com.satya.invandmodule.time_picker.CustomTimePicker;
 import com.satya.invandmodule.time_picker.TimePicker;
 
 import java.text.SimpleDateFormat;
@@ -22,7 +23,7 @@ import java.util.Date;
  */
 public class EventDatesFragment extends Fragment {
     public CustomCalendar customCalendar;
-    public TimePicker timePicker;
+    public CustomTimePicker timePicker;
     public TextView startDateText , endDateText;
     public TextView startDateTime , endDateTime , addEndDateText , pickEnddate;
     public ImageView addEndDate , clearEndDate;
@@ -44,7 +45,7 @@ public class EventDatesFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_event_dates, container, false);
         customCalendar = (CustomCalendar)view.findViewById(R.id.custom_calendar);
-        timePicker = (TimePicker)view.findViewById(R.id.time_picker);
+        timePicker = (CustomTimePicker) view.findViewById(R.id.time_picker);
         startDateText = (TextView)view.findViewById(R.id.start_date);
         endDateText = (TextView)view.findViewById(R.id.end_date);
         startDateTime = (TextView)view.findViewById(R.id.start_date_time);
@@ -61,14 +62,14 @@ public class EventDatesFragment extends Fragment {
         endDate = null;
 
         customCalendar.setStartDate(startDate);
-        timePicker.startDate = startDate;
+//        timePicker.startDate = startDate;
         setDates();
         startDateContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 isStartDateSelected = true;
 //                customCalendar.setCurrentDate(startDate);
-                timePicker.startSelecteddate(startDate);
+//                timePicker.startSelecteddate(startDate);
                 startDateText.setTextColor(getContext().getResources().getColor(R.color.container_active));
                 startDateTime.setTextColor(getContext().getResources().getColor(R.color.container_active));
 
@@ -86,7 +87,7 @@ public class EventDatesFragment extends Fragment {
 
                 }
 //                customCalendar.setCurrentDate(endDate);
-                timePicker.startSelecteddate(endDate);
+//                timePicker.startSelecteddate(endDate);
                 isStartDateSelected = false;
 //                endDate = startDate;
 //                endDate.setHours(startDate.getHours() + 1);
@@ -124,6 +125,7 @@ public class EventDatesFragment extends Fragment {
 //                }
                 startDate = startdate;
                 updateUIDates();
+                timePicker.setMinDate(startdate);
 //                customCalendar.setStartDate(startdate);
 //                customCalendar.callCalendarPresenter();
 //                timePicker.startSelecteddate(startdate);
@@ -135,20 +137,20 @@ public class EventDatesFragment extends Fragment {
             }
         });
 
-        timePicker.setTimePickerEvent(new TimePicker.TimePickerEvent() {
-            @Override
-            public void startDate(Date date) {
-//                if (isStartDateSelected) {
-                    setTimes(date);
-//                }
-//                else {
-//                    setTimes();
-//                }
-
-//                updateUIDates();
-
-            }
-        });
+//        timePicker.setTimePickerEvent(new TimePicker.TimePickerEvent() {
+//            @Override
+//            public void startDate(Date date) {
+////                if (isStartDateSelected) {
+//                    setTimes(date);
+////                }
+////                else {
+////                    setTimes();
+////                }
+//
+////                updateUIDates();
+//
+//            }
+//        });
         return view;
     }
 
