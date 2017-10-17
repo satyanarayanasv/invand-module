@@ -73,7 +73,7 @@ public class CalanderPresenter {
         presentDate.set(Calendar.MILLISECOND,0);
         setPresentdate(presentDate.getTime());
 
-
+        months.clear();
         for (int i = 0; i < 12; i++) {
             this.calendar = Calendar.getInstance();
             this.calendar.add(Calendar.MONTH,i);
@@ -163,6 +163,13 @@ public class CalanderPresenter {
 
 
     public void startDate(Date date, int month){
+        Calendar presentDate  = Calendar.getInstance();
+//        presentDate.setTime(date);
+//        presentDate.set(Calendar.HOUR_OF_DAY,0);
+//        presentDate.set(Calendar.MINUTE,0);
+//        presentDate.set(Calendar.SECOND,0);
+//        Date givenDate = presentDate.getTime();
+
         for(int i = 0;i < months.get(month).getMonthDays().size(); i ++){
             if(months.get(month).getMonthDays().get(i).getDate().getTime() == date.getTime()){
                 months.get(month).getMonthDays().get(i).setSelected(true);

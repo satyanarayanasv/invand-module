@@ -31,6 +31,11 @@ public class MonthsAdapter extends RecyclerView.Adapter<MonthsAdapter.ViewHolder
         View view = layoutInflater.inflate(R.layout.month_view,parent,false);
         return new ViewHolder(view);
     }
+    public void setMonths(ArrayList<Month> calendars) {
+        this.calendars.clear();
+        this.calendars.addAll(calendars);
+
+    }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
@@ -40,7 +45,9 @@ public class MonthsAdapter extends RecyclerView.Adapter<MonthsAdapter.ViewHolder
             dayAdapter.dayAdapterListnerInterface=(DayAdapterListenerInterface) monthAdapterListnerInterface;
 
         }
+
         holder.monthGridView.setAdapter(adaptersList.get(position));
+
 
     }
 

@@ -45,7 +45,10 @@ public class DayAdapter extends ArrayAdapter<Date> {
         calendar.set(Calendar.MILLISECOND,0);
         today = calendar.getTime();
     }
-
+    public void setDates(ArrayList<Day> days) {
+        this.dates.clear();
+        this.dates.addAll(days);
+    }
     @Override
     public int getCount() {
         return dates.size();

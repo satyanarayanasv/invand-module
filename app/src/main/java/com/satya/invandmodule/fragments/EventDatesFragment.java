@@ -15,6 +15,7 @@ import com.satya.invandmodule.event_dates.custom_.CustomCalendar;
 import com.satya.invandmodule.time_picker.TimePicker;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -66,8 +67,14 @@ public class EventDatesFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 isStartDateSelected = true;
-//                customCalendar.setCurrentDate(startDate);
-                timePicker.startSelecteddate(startDate);
+                Calendar presentDate  = Calendar.getInstance();
+                presentDate.setTime(startDate);
+                presentDate.set(Calendar.HOUR_OF_DAY,0);
+                presentDate.set(Calendar.MINUTE,0);
+                presentDate.set(Calendar.SECOND,0);
+                Date givenDate = presentDate.getTime();
+                customCalendar.setCurrentDate(startDate);
+//                timePicker.startSelecteddate(startDate);
                 startDateText.setTextColor(getContext().getResources().getColor(R.color.container_active));
                 startDateTime.setTextColor(getContext().getResources().getColor(R.color.container_active));
 
@@ -84,8 +91,14 @@ public class EventDatesFragment extends Fragment {
                     endDate = new Date(startDate.getTime() +  DEFAULT_MIN_END_DATE_DIFFERENCE) ;
 
                 }
-//                customCalendar.setCurrentDate(endDate);
-                timePicker.startSelecteddate(endDate);
+                Calendar presentDate  = Calendar.getInstance();
+                presentDate.setTime(endDate);
+                presentDate.set(Calendar.HOUR_OF_DAY,0);
+                presentDate.set(Calendar.MINUTE,0);
+                presentDate.set(Calendar.SECOND,0);
+                Date givenDate = presentDate.getTime();
+                customCalendar.setCurrentDate(givenDate);
+//                timePicker.startSelecteddate(endDate);
                 isStartDateSelected = false;
 //                endDate = startDate;
 //                endDate.setHours(startDate.getHours() + 1);
@@ -114,8 +127,15 @@ public class EventDatesFragment extends Fragment {
         });
         customCalendar.setEventHandler(new CustomCalendar.EventHandler() {
             @Override
-            public void onStartDate(Date startdate) {
-                timePicker.startSelecteddate(startdate);
+            public void onStartDate(Date date) {
+//                timePicker.startSelecteddate(startdate);
+                if (isStartDateSelected) {
+                    startDate = date;
+
+                }
+                else {
+                    endDate = date;
+                }
 
             }
             @Override
@@ -128,10 +148,10 @@ public class EventDatesFragment extends Fragment {
             @Override
             public void startDate(Date date) {
                 if (isStartDateSelected) {
-                    startDate = date;
+//                    startDate = date;
                 }
                 else {
-                    endDate = date;
+//                    endDate = date;
                 }
 //                startDate = date;
 //                date.setHours(startDate.getHours() + 1);
