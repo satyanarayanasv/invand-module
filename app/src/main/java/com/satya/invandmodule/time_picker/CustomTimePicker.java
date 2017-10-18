@@ -64,9 +64,9 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
     }
     public void update(){
         scrollListToPositionDate(hoursRecyclerview,get12HoursFormat(startDate.getHours() )-1 ,true,true);
-        scrollListToPositionDate(minitesRecyclerview,get12HoursFormat(startDate.getMinutes())-1 ,false,true);
-        calculatePositionAndScrollDate(hoursRecyclerview,true);
-        calculatePositionAndScrollDate(minitesRecyclerview,false);
+        scrollListToPositionDate(minitesRecyclerview,startDate.getMinutes()-1 ,false,true);
+//        calculatePositionAndScrollDate(hoursRecyclerview,true);
+//        calculatePositionAndScrollDate(minitesRecyclerview,false);
     }
 
     public void setStartDate(Date startDate) {
@@ -123,7 +123,7 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
 
                             if (newState == recyclerView.SCROLL_STATE_IDLE) {
                                 calculatePositionAndScrollDate(recyclerView, true);
-                                calculatePositionAndScrollDate(minitesRecyclerview,false);
+//                                calculatePositionAndScrollDate(minitesRecyclerview,false);
                             }
                         }
 
@@ -256,28 +256,6 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
         }
     }
 
-    private void McalculatePositionAndScrollDate(RecyclerView recyclerView,boolean isHours) {
-        if (isHours) {
-            int expectedPositionDate = Math.round((hAllPixelsDate + hPaddingDate - hFirstItemWidthDate) / hItemWidthDate);
-
-            if (expectedPositionDate == -1) {
-                expectedPositionDate = 0;
-            } else if (expectedPositionDate >= recyclerView.getAdapter().getItemCount() - 2) {
-                expectedPositionDate--;
-            }
-            HscrollListToPositionDate(recyclerView, expectedPositionDate, true);
-        } else {
-            int expectedPositionDate = Math.round((mAllPixelsDate + mPaddingDate - mFirstItemWidthDate) / mItemWidthDate);
-
-            if (expectedPositionDate == -1) {
-                expectedPositionDate = 0;
-            } else if (expectedPositionDate >= recyclerView.getAdapter().getItemCount() - 2) {
-                expectedPositionDate--;
-            }
-            HscrollListToPositionDate(recyclerView, expectedPositionDate, false);
-        }
-    }
-
 
     private void calculatePositionAndScrollDate(RecyclerView recyclerView,boolean isHours) {
         if(isHours){
@@ -333,12 +311,25 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
 
     public void setChecked(boolean isChecked){
         if(startDate.getDate() == minDate.getDate()){
-            if(getAmPm(startDate.getHours())){
+            if(isAm){
+                amPmSwitch.setOnCheckedChangeListener(null);
                 amPmSwitch.setChecked(isChecked);
-                scrollListToPositionDate(hoursRecyclerview,startDate.getDate(),true,false);
+                isAm = isChecked;
+                amPmSwitch.setOnCheckedChangeListener(listener);
+                prepareFinalDate();
+//                scrollListToPositionDate(hoursRecyclerview,startDate.getDate(),true,false);
             }else {
-                amPmSwitch.setChecked(!isChecked);
-                scrollListToPositionDate(hoursRecyclerview,startDate.getDate(),true,false);
+                amPmSwitch.setOnCheckedChangeListener(null);
+//                amPmSwitch.setChecked(!isChecked);
+//                isAm = !isChecked;
+                isAm = getAmPm(startDate.getHours());
+                amPmSwitch.setChecked(isAm);
+                scrollListToPositionDate(hoursRecyclerview,get12HoursFormat(startDate.getHours() -1),true,false);
+//                isAm = getAmPm(startDate.getHours());
+//                amPmSwitch.setChecked(isAm);
+                scrollListToPositionDate(hoursRecyclerview,startDate.getMinutes() -1,false,false);
+                amPmSwitch.setOnCheckedChangeListener(listener);
+//                prepareFinalDate();
             }
 //            startDate = new Date();
 //            if(!isChecked){
@@ -350,7 +341,10 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
 //            }
         }else {
             amPmSwitch.setChecked(isChecked);
-            scrollListToPositionDate(hoursRecyclerview,startDate.getDate(),true,false);
+            isAm = isChecked;
+            prepareFinalDate();
+
+//            scrollListToPositionDate(hoursRecyclerview,startDate.getDate(),true,false);
         }
     }
 
@@ -385,6 +379,7 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
                 checkingScrollingEnable(true, setColorDate);
             }else {
                 hoursAdapter.setSelecteditem(setColorDate,true);
+                selectedHr = setColorDate;
                 prepareFinalDate();
             }
 //            if(mcheckEnableScrolling(true)){
@@ -402,6 +397,7 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
                 checkingScrollingEnable(false, setColorDate);
             }else {
                 minutesAdapter.setSelecteditem(setColorDate, false);
+                selectedMin = setColorDate;
                 prepareFinalDate();
             }
 
@@ -429,6 +425,8 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
                     amPmSwitch.setChecked(getAmPm(startDate.getHours()));
                     amPmSwitch.setOnCheckedChangeListener(listener);
                     mScrollListToPositionDate(hoursRecyclerview,get12HoursFormat(startDate.getHours() ) -1,true,false);
+                    hoursAdapter.setSelecteditem(get12HoursFormat(startDate.getHours() ) -1, true);
+                    selectedHr = get12HoursFormat(startDate.getHours() ) -1;
                 }
             }else {
                 hoursAdapter.setSelecteditem(selectedHour, true);
@@ -472,6 +470,8 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
 
                     }else {
                         mScrollListToPositionDate(minitesRecyclerview, minDate.getMinutes() - 1, false, false);
+                        minutesAdapter.setSelecteditem(minDate.getMinutes() - 1, false);
+                        selectedMin = selectedHour;
                     }
                 }
             }else {
@@ -531,7 +531,7 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
 
     private void prepareFinalDate(){
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(minDate);
+        calendar.setTime(startDate);
         calendar.set(Calendar.HOUR_OF_DAY,get24HoursFormat(amPmSwitch.isChecked(),selectedHr));
         calendar.set(Calendar.MINUTE,selectedMin);
         calendar.set(Calendar.SECOND,0);
