@@ -26,7 +26,7 @@ import java.util.Date;
 public class DayAdapter extends ArrayAdapter<Date> {
 
     public Context context;
-    public ArrayList<Day> dates;
+    public ArrayList<Day> dates = new ArrayList<>();
     private LayoutInflater inflater;
     private Date currentCalendar;
     public DayAdapterListenerInterface dayAdapterListnerInterface;
@@ -35,7 +35,8 @@ public class DayAdapter extends ArrayAdapter<Date> {
         super(context, R.layout.day_view);
         inflater= LayoutInflater.from(context);
         this.context=context;
-        this.dates=days;
+        this.dates.clear();
+        this.dates.addAll(days);
         this.currentCalendar = currentCalendar;
 
         Calendar calendar = Calendar.getInstance();
@@ -48,6 +49,18 @@ public class DayAdapter extends ArrayAdapter<Date> {
     public void setDates(ArrayList<Day> days) {
         this.dates.clear();
         this.dates.addAll(days);
+    }
+    public void setAdapterInfo(ArrayList<Day> days, Date currentCalendar) {
+        setDates(days);
+        this.currentCalendar = currentCalendar;
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY,0);
+        calendar.set(Calendar.MINUTE,0);
+        calendar.set(Calendar.SECOND,0);
+        calendar.set(Calendar.MILLISECOND,0);
+        today = calendar.getTime();
+
     }
     @Override
     public int getCount() {

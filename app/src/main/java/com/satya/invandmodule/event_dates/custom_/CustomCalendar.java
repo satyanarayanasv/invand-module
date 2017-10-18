@@ -161,7 +161,8 @@ public class CustomCalendar extends LinearLayout implements ICalendarView, DayAd
 
     }
     public void setCurrentDate(Date date) {
-        calanderPresenter.setStartDate(startDate);
+        startDate = date;
+        calanderPresenter.setStartDate(date);
         calanderPresenter.prepareCalenderMonths();
         monthsAdapter.setMonths(calanderPresenter.getMonths());
         monthsAdapter.notifyDataSetChanged();

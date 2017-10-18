@@ -59,7 +59,7 @@ public class EventDatesFragment extends Fragment {
         endDateContainer = (ConstraintLayout)view.findViewById(R.id.end_date_container);
 
 //        startDate = new Date(new Date().getTime() + DEFAULT_MIN_START_DATE_DIFFERENCE);
-        startDate = new Date();
+        startDate = getNow();
         final Runnable runnable = new Runnable() {
             @Override
             public void run() {
@@ -71,12 +71,20 @@ public class EventDatesFragment extends Fragment {
             }
         };
         Handler handler = new Handler();
-        handler.postDelayed(runnable,5000);
+        handler.postDelayed(runnable,3000);
 
 
         endDate = null;
+        Calendar presentDate  = Calendar.getInstance();
+        presentDate.setTime(startDate);
+        presentDate.set(Calendar.HOUR_OF_DAY,0);
+        presentDate.set(Calendar.MINUTE,0);
+        presentDate.set(Calendar.SECOND,0);
+        Date givenDate = presentDate.getTime();
+        customCalendar.setStartDate(givenDate);
 
-        customCalendar.setStartDate(startDate);
+        customCalendar.setCurrentDate(givenDate);
+
 //        timePicker.startDate = startDate;
         setDates();
         startDateContainer.setOnClickListener(new View.OnClickListener() {
@@ -84,17 +92,17 @@ public class EventDatesFragment extends Fragment {
             public void onClick(View v) {
                 isStartDateSelected = true;
 //                customCalendar.setCurrentDate(startDate);
-                timePicker.setStartDate(startDate);
-                timePicker.setMinDate(getNow());
-                timePicker.update();
+//                timePicker.setStartDate(startDate);
+//                timePicker.setMinDate(getNow());
+//                timePicker.update();
 
-//                Calendar presentDate  = Calendar.getInstance();
-//                presentDate.setTime(startDate);
-//                presentDate.set(Calendar.HOUR_OF_DAY,0);
-//                presentDate.set(Calendar.MINUTE,0);
-//                presentDate.set(Calendar.SECOND,0);
-//                Date givenDate = presentDate.getTime();
-//                customCalendar.setCurrentDate(startDate);
+                Calendar presentDate  = Calendar.getInstance();
+                presentDate.setTime(startDate);
+                presentDate.set(Calendar.HOUR_OF_DAY,0);
+                presentDate.set(Calendar.MINUTE,0);
+                presentDate.set(Calendar.SECOND,0);
+                Date givenDate = presentDate.getTime();
+                customCalendar.setCurrentDate(givenDate);
 //                timePicker.startSelecteddate(startDate);
                 startDateText.setTextColor(getContext().getResources().getColor(R.color.container_active));
                 startDateTime.setTextColor(getContext().getResources().getColor(R.color.container_active));
@@ -113,19 +121,19 @@ public class EventDatesFragment extends Fragment {
                     endDate = new Date(startDate.getTime() +  DEFAULT_MIN_END_DATE_DIFFERENCE) ;
 
                 }
-                timePicker.setStartDate(endDate);
-                Date date = new Date(startDate.getTime()+ DEFAULT_MIN_START_DATE_DIFFERENCE );
-                timePicker.setMinDate(date);
-                timePicker.update();
+//                timePicker.setStartDate(endDate);
+//                Date date = new Date(startDate.getTime()+ DEFAULT_MIN_START_DATE_DIFFERENCE );
+//                timePicker.setMinDate(date);
+//                timePicker.update();
+
 //                customCalendar.setCurrentDate(endDate);
-//                timePicker.startSelecteddate(endDate);
-//                Calendar presentDate  = Calendar.getInstance();
-//                presentDate.setTime(endDate);
-//                presentDate.set(Calendar.HOUR_OF_DAY,0);
-//                presentDate.set(Calendar.MINUTE,0);
-//                presentDate.set(Calendar.SECOND,0);
-//                Date givenDate = presentDate.getTime();
-//                customCalendar.setCurrentDate(givenDate);
+                Calendar presentDate  = Calendar.getInstance();
+                presentDate.setTime(endDate);
+                presentDate.set(Calendar.HOUR_OF_DAY,0);
+                presentDate.set(Calendar.MINUTE,0);
+                presentDate.set(Calendar.SECOND,0);
+                Date givenDate = presentDate.getTime();
+                customCalendar.setCurrentDate(givenDate);
 //                timePicker.startSelecteddate(endDate);
                 isStartDateSelected = false;
 //                endDate = startDate;
@@ -164,6 +172,7 @@ public class EventDatesFragment extends Fragment {
                 else {
                     endDate = date;
                 }
+                updateUIDates();
 
             }
             @Override
@@ -225,11 +234,19 @@ public class EventDatesFragment extends Fragment {
         isStartDateSelected = false;
         isEndContainerAdded = true;
         endDate = new Date(startDate.getTime() +  DEFAULT_MIN_END_DATE_DIFFERENCE) ;
+        Calendar presentDate  = Calendar.getInstance();
+        presentDate.setTime(endDate);
+        presentDate.set(Calendar.HOUR_OF_DAY,0);
+        presentDate.set(Calendar.MINUTE,0);
+        presentDate.set(Calendar.SECOND,0);
+        Date givenDate = presentDate.getTime();
+        customCalendar.setCurrentDate(givenDate);
+
 //        customCalendar.startDate = startDate;
-        timePicker.setStartDate(endDate);
-        Date date = new Date(startDate.getTime() +  DEFAULT_MIN_START_DATE_DIFFERENCE) ;
-        timePicker.setMinDate(date);
-        timePicker.update();
+//        timePicker.setStartDate(endDate);
+//        Date date = new Date(startDate.getTime() +  DEFAULT_MIN_START_DATE_DIFFERENCE) ;
+//        timePicker.setMinDate(date);
+//        timePicker.update();
         addEndDate.setVisibility(View.GONE);
         addEndDateText.setVisibility(View.GONE);
         pickEnddate.setVisibility(View.VISIBLE);

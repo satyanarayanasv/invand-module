@@ -45,8 +45,11 @@ public class MonthsAdapter extends RecyclerView.Adapter<MonthsAdapter.ViewHolder
             dayAdapter.dayAdapterListnerInterface=(DayAdapterListenerInterface) monthAdapterListnerInterface;
 
         }
+        adaptersList.get(position).setAdapterInfo(calendars.get(position).getMonthDays(), calendars.get(position).getCuurentCalander());
 
         holder.monthGridView.setAdapter(adaptersList.get(position));
+        adaptersList.get(position).setDates(calendars.get(position).getMonthDays());
+//        adaptersList.get(position).notifyDataSetChanged();
 
 
     }
