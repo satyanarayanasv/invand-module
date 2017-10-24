@@ -6,12 +6,16 @@ import android.view.View;
 import android.widget.Button;
 
 import com.satya.invandmodule.fragments.EventDatesFragment;
+import com.satya.invandmodule.fragments.EventLocationFragment;
+import com.satya.invandmodule.fragments.EventMediaFragment;
 import com.satya.invandmodule.fragments.EventTitleFragment;
 
 public class MainActivity extends AppCompatActivity {
 
     public EventDatesFragment eventDatesFragment;
     public EventTitleFragment eventTitleFragment;
+    public EventMediaFragment eventMediaFragment;
+    public EventLocationFragment eventLocationFragment;
     public Button nextBtn , backBtn;
     private String currentFragmentName = "event_title";
 
@@ -22,8 +26,10 @@ public class MainActivity extends AppCompatActivity {
         nextBtn = (Button)findViewById(R.id.next_btn);
         backBtn = (Button)findViewById(R.id.back_btn);
         backBtn.setVisibility(View.INVISIBLE);
-        eventTitleFragment = new EventTitleFragment();
-        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventTitleFragment).commit();
+//        eventTitleFragment = new EventTitleFragment();
+//        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventTitleFragment).commit();
+        eventLocationFragment = new EventLocationFragment();
+        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventLocationFragment).commit();
 
 
 
@@ -31,14 +37,14 @@ public class MainActivity extends AppCompatActivity {
         nextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                clickNextBtn();
+//                clickNextBtn();
             }
         });
 
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                clickBackBtn();
+//                clickBackBtn();
             }
         });
     }
