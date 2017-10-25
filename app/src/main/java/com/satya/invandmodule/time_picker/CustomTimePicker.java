@@ -63,6 +63,10 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
         return startDate;
     }
     public void update(){
+        if(startDate.before(minDate)) {
+            startDate = minDate;
+        }
+
         scrollListToPositionDate(hoursRecyclerview,get12HoursFormat(startDate.getHours() )-1 ,true,true);
         scrollListToPositionDate(minitesRecyclerview,startDate.getMinutes()-1 ,false,true);
 //        calculatePositionAndScrollDate(hoursRecyclerview,true);
