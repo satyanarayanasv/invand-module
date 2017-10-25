@@ -142,7 +142,7 @@ public class CalanderPresenter {
     }
     public void clearLastDepartDate(Date date, int month){
         for(int i=0;i<months.get(month).getMonthDays().size();i++){
-            if(months.get(month).getMonthDays().get(i).getDate().getTime()==date.getTime()){
+            if(months.get(month).getMonthDays().get(i).getDate().getDate() == date.getDate()){
                 months.get(month).getMonthDays().get(i).setSelected(false);
                 break;
             }
@@ -171,7 +171,7 @@ public class CalanderPresenter {
 //        Date givenDate = presentDate.getTime();
 
         for(int i = 0;i < months.get(month).getMonthDays().size(); i ++){
-            if(months.get(month).getMonthDays().get(i).getDate().getTime() == date.getTime()){
+            if(months.get(month).getMonthDays().get(i).getDate().getDate() == date.getDate()){
                 months.get(month).getMonthDays().get(i).setSelected(true);
                 break;
             }

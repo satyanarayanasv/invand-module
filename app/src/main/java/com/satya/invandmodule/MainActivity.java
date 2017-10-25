@@ -26,12 +26,13 @@ public class MainActivity extends AppCompatActivity {
         nextBtn = (Button)findViewById(R.id.next_btn);
         backBtn = (Button)findViewById(R.id.back_btn);
         backBtn.setVisibility(View.INVISIBLE);
-        eventTitleFragment = new EventTitleFragment();
-        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventTitleFragment).commit();
-//        eventLocationFragment = new EventLocationFragment();
-//        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventLocationFragment).commit();
+//        eventTitleFragment = new EventTitleFragment();
+//        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventTitleFragment).commit();
+        eventLocationFragment = new EventLocationFragment();
+        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventLocationFragment).commit();
 
-
+//        eventMediaFragment = new EventMediaFragment();
+//        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventMediaFragment).commit();
 
 
         nextBtn.setOnClickListener(new View.OnClickListener() {

@@ -127,7 +127,7 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
 
                             if (newState == recyclerView.SCROLL_STATE_IDLE) {
                                 calculatePositionAndScrollDate(recyclerView, true);
-//                                calculatePositionAndScrollDate(minitesRecyclerview,false);
+                                calculatePositionAndScrollDate(minitesRecyclerview,false);
                             }
                         }
 
@@ -464,12 +464,12 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
             if(minDate.getDate() == startDate.getDate()){
                 if(minDate.getHours() < get24HoursFormat(amPmSwitch.isChecked(),selectedHr)){
                     minutesAdapter.setSelecteditem(selectedHour, false);
-                    selectedMin = selectedHour;
+                    selectedMin = selectedHour - 1;
                     prepareFinalDate();
                 }else if(minDate.getHours() == get24HoursFormat(amPmSwitch.isChecked(),selectedHr)){
                     if(minDate.getMinutes() <= selectedHour){
-                        minutesAdapter.setSelecteditem(selectedHour, false);
-                        selectedMin = selectedHour;
+                        minutesAdapter.setSelecteditem(selectedHour , false);
+                        selectedMin = selectedHour - 1;
                         prepareFinalDate();
 
                     }else {
@@ -480,7 +480,7 @@ public class CustomTimePicker extends LinearLayout implements ITimerInterface{
                 }
             }else {
                 minutesAdapter.setSelecteditem(selectedHour,false);
-                selectedMin = selectedHour;
+                selectedMin = selectedHour - 1 ;
                 prepareFinalDate();
             }
 

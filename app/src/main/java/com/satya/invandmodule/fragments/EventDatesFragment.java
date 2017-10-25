@@ -66,17 +66,18 @@ public class EventDatesFragment extends Fragment {
                 timePicker.setMinDate(getNow());
                 timePicker.setStartDate(getNow());
                 timePicker.update();
+                Date givenDate = getZeroHoursDate(startDate);
+                customCalendar.setCurrentDate(givenDate);
+
 
             }
         };
         Handler handler = new Handler();
-        handler.postDelayed(runnable,1000);
+        handler.postDelayed(runnable,500);
 
 
         endDate = null;
-        Date givenDate = getZeroHoursDate(startDate);
-        customCalendar.setStartDate(givenDate);
-        customCalendar.setCurrentDate(givenDate);
+
 
 //        timePicker.startDate = startDate;
         setDates();
@@ -145,14 +146,21 @@ public class EventDatesFragment extends Fragment {
 //                timePicker.startSelecteddate(startdate);
                 if (isStartDateSelected) {
                     startDate = getCurrentHoursDate(date, startDate);
+                    if(endDate != null && startDate.after(endDate)){
+                        endDate = new Date(startDate.getTime() + DEFAULT_MIN_END_DATE_DIFFERENCE) ;
+                    }
 
                 }
                 else {
                     endDate = getCurrentHoursDate(date, endDate);
+                    if (endDate != null && endDate.before(startDate)) {
+                        startDate = new Date(endDate.getTime() -  DEFAULT_MIN_END_DATE_DIFFERENCE) ;
+                    }
                 }
-                if (endDate != null && endDate.before(startDate)) {
-                    startDate = new Date(endDate.getTime() -  DEFAULT_MIN_END_DATE_DIFFERENCE) ;
-                }
+
+//                if(endDate != null && startDate.after(endDate)){
+//                    endDate = new Date(startDate.getTime() + DEFAULT_MIN_END_DATE_DIFFERENCE) ;
+//                }
                 updateUIDates();
 
             }
