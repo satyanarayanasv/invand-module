@@ -31,13 +31,14 @@ public class MainActivity extends AppCompatActivity {
         eventLocationFragment = new EventLocationFragment();
         getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventLocationFragment).commit();
 
-
+//        eventMediaFragment = new EventMediaFragment();
+//        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventMediaFragment).commit();
 
 
         nextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                clickNextBtn();
+                clickNextBtn();
             }
         });
 

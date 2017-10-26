@@ -66,17 +66,18 @@ public class EventDatesFragment extends Fragment {
                 timePicker.setMinDate(getNow());
                 timePicker.setStartDate(getNow());
                 timePicker.update();
+                Date givenDate = getZeroHoursDate(startDate);
+                customCalendar.setCurrentDate(givenDate);
+
 
             }
         };
         Handler handler = new Handler();
-        handler.postDelayed(runnable,1000);
+        handler.postDelayed(runnable,500);
 
 
         endDate = null;
-        Date givenDate = getZeroHoursDate(startDate);
-        customCalendar.setStartDate(givenDate);
-        customCalendar.setCurrentDate(givenDate);
+
 
 //        timePicker.startDate = startDate;
         setDates();
@@ -145,11 +146,21 @@ public class EventDatesFragment extends Fragment {
 //                timePicker.startSelecteddate(startdate);
                 if (isStartDateSelected) {
                     startDate = getCurrentHoursDate(date, startDate);
+                    if(endDate != null && startDate.after(endDate)){
+                        endDate = new Date(startDate.getTime() + DEFAULT_MIN_END_DATE_DIFFERENCE) ;
+                    }
 
                 }
                 else {
                     endDate = getCurrentHoursDate(date, endDate);
+                    if (endDate != null && endDate.before(startDate)) {
+                        startDate = new Date(endDate.getTime() -  DEFAULT_MIN_END_DATE_DIFFERENCE) ;
+                    }
                 }
+
+//                if(endDate != null && startDate.after(endDate)){
+//                    endDate = new Date(startDate.getTime() + DEFAULT_MIN_END_DATE_DIFFERENCE) ;
+//                }
                 updateUIDates();
 
             }
@@ -218,16 +229,13 @@ public class EventDatesFragment extends Fragment {
     public void updateUIDates(){
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM,yyyy");
         SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
-        if(isStartDateSelected){
+
             startDateText.setText(dateFormat.format(startDate));
             startDateTime.setText(timeFormat.format(startDate));
-        }else {
             if (endDate != null) {
                 endDateText.setText(dateFormat.format(endDate));
                 endDateTime.setText(timeFormat.format(endDate));
-
             }
-        }
     }
 
 
@@ -253,6 +261,7 @@ public class EventDatesFragment extends Fragment {
 
     }
     public void clearEndDate(){
+        isStartDateSelected = true;
         isEndContainerAdded = false;
         endDate = null;
         addEndDate.setVisibility(View.VISIBLE);
@@ -261,6 +270,12 @@ public class EventDatesFragment extends Fragment {
         clearEndDate.setVisibility(View.GONE);
         endDateTime.setVisibility(View.GONE);
         endDateText.setVisibility(View.GONE);
+        Date givenDate = getZeroHoursDate(startDate);
+        customCalendar.setCurrentDate(givenDate);
+        timePicker.setStartDate(startDate);
+        timePicker.setMinDate(getNow());
+        timePicker.update();
+        updateUIDates();
     }
 
 }

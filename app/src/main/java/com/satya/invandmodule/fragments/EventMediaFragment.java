@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -94,7 +93,7 @@ public class EventMediaFragment extends Fragment {
         if (resultCode == RESULT_OK) {
             if (requestCode == SELECT_PICTURE) {
                 Uri selectedImageUri = data.getData();
-                if (selectedImageUri.toString().toLowerCase().contains("image") || selectedImageUri.toString().toLowerCase().contains(".jpg")){
+                if (selectedImageUri.getPath().toString().toLowerCase().contains("images") || selectedImageUri.toString().toLowerCase().contains(".jpg") && selectedImageUri.toString().toLowerCase().contains(".jpeg")){
                     showImage(selectedImageUri);
                 }else {
                     showVideo(selectedImageUri);
