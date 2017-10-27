@@ -2,8 +2,10 @@ package com.satya.invandmodule.fragments;
 
 
 import android.Manifest;
-import android.content.Context;
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
@@ -16,15 +18,30 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStates;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -34,6 +51,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.satya.invandmodule.R;
+
+import static android.app.Activity.RESULT_CANCELED;
+import static android.app.Activity.RESULT_OK;
+import static android.content.ContentValues.TAG;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -45,7 +66,10 @@ public class EventLocationFragment extends Fragment implements OnMapReadyCallbac
     public Criteria criteria;
     public Location location;
     public String provider;
+    public MarkerOptions markerOptions;
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    public int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
+    protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
 
 
@@ -54,6 +78,7 @@ public class EventLocationFragment extends Fragment implements OnMapReadyCallbac
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
     Marker mCurrLocationMarker;
+    public Button button;
 
 //    public FusedLocationProviderClient mFusedLocationProviderClient
 
@@ -68,14 +93,59 @@ public class EventLocationFragment extends Fragment implements OnMapReadyCallbac
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_event_location, container, false);
+//        button = (Button)view.findViewById(R.id.button);
         SupportMapFragment mapFragment = (SupportMapFragment) this.getChildFragmentManager()
                 .findFragmentById(R.id.maps);
         mapFragment.getMapAsync(this);
 
 
 
+
+
+        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment) getActivity().getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+        autocompleteFragment.setHint("Search your Place Here .");
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                showLocation(place);
+                // TODO: Get info about the selected place.
+                Log.i(TAG, "Place: " + place.getName());
+            }
+
+            @Override
+            public void onError(Status status) {
+                // TODO: Handle the error.
+                Log.i(TAG, "An error occurred: " + status);
+            }
+        });
+
+
+
+
         return view;
     }
+
+    private void showLocation(Place place){
+
+        LatLng latLng = place.getLatLng();
+        if(markerOptions == null){
+            markerOptions = new MarkerOptions();
+        }
+        markerOptions.position(latLng);
+        markerOptions.title((String)place.getName());
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+
+        if (mCurrLocationMarker != null) {
+            mCurrLocationMarker.remove();
+        }
+        mCurrLocationMarker = mMap.addMarker(markerOptions);
+
+        //move map camera
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,20));
+
+
+    }
+
 
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
@@ -84,7 +154,52 @@ public class EventLocationFragment extends Fragment implements OnMapReadyCallbac
                 .addApi(LocationServices.API)
                 .build();
         mGoogleApiClient.connect();
+        settingsrequest();
+
     }
+
+    public void settingsrequest(){
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(30 * 1000);
+        locationRequest.setFastestInterval(5 * 1000);
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest);
+        builder.setAlwaysShow(true); //this is the key ingredient
+
+        PendingResult<LocationSettingsResult> result =
+                LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
+        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+            @Override
+            public void onResult(LocationSettingsResult result) {
+                final Status status = result.getStatus();
+                final LocationSettingsStates state = result.getLocationSettingsStates();
+                switch (status.getStatusCode()) {
+                    case LocationSettingsStatusCodes.SUCCESS:
+                        // All location settings are satisfied. The client can initialize location
+                        // requests here.
+                        break;
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        // Location settings are not satisfied. But could be fixed by showing the user
+                        // a dialog.
+                        try {
+                            // Show the dialog by calling startResolutionForResult(),
+                            // and check the result in onActivityResult().
+                            status.startResolutionForResult(getActivity(), REQUEST_CHECK_SETTINGS);
+                        } catch (IntentSender.SendIntentException e) {
+                            // Ignore the error.
+                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        // Location settings are not satisfied. However, we have no way to fix the
+                        // settings so we won't show the dialog.
+                        break;
+                }
+            }
+        });
+
+    }
+
 
 
     @Override
@@ -92,10 +207,13 @@ public class EventLocationFragment extends Fragment implements OnMapReadyCallbac
 
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_LOCATION: {
+
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
 
+
+//                    settingsrequest();
                     if (mGoogleApiClient == null) {
                         buildGoogleApiClient();
                     }
@@ -120,12 +238,41 @@ public class EventLocationFragment extends Fragment implements OnMapReadyCallbac
                 }
 
             }
+            case REQUEST_CHECK_SETTINGS:
+                switch (requestCode){
+                    case Activity.RESULT_OK:
+                        if (mGoogleApiClient == null) {
+                            buildGoogleApiClient();
+                        }
+                        mMap.setMyLocationEnabled(true);
+                    case Activity.RESULT_CANCELED:
+                        settingsrequest();
+                        break;
+
+                }
 
             // other 'case' lines to check for other
             // permissions this app might request
         }
 
 
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlaceAutocomplete.getPlace(getActivity(), data);
+                Log.i(TAG, "Place: " + place.getName());
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                Status status = PlaceAutocomplete.getStatus(getActivity(), data);
+                // TODO: Handle the error.
+                Log.i(TAG, status.getStatusMessage());
+
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
+        }
     }
 
     private void setMap() {
@@ -156,8 +303,11 @@ public class EventLocationFragment extends Fragment implements OnMapReadyCallbac
             if (ContextCompat.checkSelfPermission(getContext(),Manifest.permission.ACCESS_FINE_LOCATION )
                     == PackageManager.PERMISSION_GRANTED ) {
                 //Location Permission already granted
-                buildGoogleApiClient();
+                if (mGoogleApiClient == null) {
+                    buildGoogleApiClient();
+                }
                 mMap.setMyLocationEnabled(true);
+
 //                setMap();
             } else {
                 //Request Location Permission
@@ -165,10 +315,37 @@ public class EventLocationFragment extends Fragment implements OnMapReadyCallbac
             }
         }
         else {
-            buildGoogleApiClient();
+            if (mGoogleApiClient == null) {
+                buildGoogleApiClient();
+            }
             mMap.setMyLocationEnabled(true);
+
+//            settingsrequest();
 //            setMap();
         }
+
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+
+
+                if(markerOptions == null){
+                    markerOptions = new MarkerOptions();
+                }
+                markerOptions.position(latLng);
+                markerOptions.title("selected location");
+                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+
+                if (mCurrLocationMarker != null) {
+                    mCurrLocationMarker.remove();
+                }
+                mCurrLocationMarker = mMap.addMarker(markerOptions);
+
+                //move map camera
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,20));
+
+            }
+        });
 
 
     }
@@ -204,8 +381,8 @@ public class EventLocationFragment extends Fragment implements OnMapReadyCallbac
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(1000);
-        mLocationRequest.setFastestInterval(1000);
+//        mLocationRequest.setInterval();
+//        mLocationRequest.setFastestInterval(1000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         if (ContextCompat.checkSelfPermission(getContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION)
@@ -235,14 +412,16 @@ public class EventLocationFragment extends Fragment implements OnMapReadyCallbac
 
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions();
+        if(markerOptions == null){
+             markerOptions = new MarkerOptions();
+        }
         markerOptions.position(latLng);
         markerOptions.title("Current Position");
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
         mCurrLocationMarker = mMap.addMarker(markerOptions);
 
         //move map camera
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,11));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,20));
 
     }
 

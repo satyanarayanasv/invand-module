@@ -6,7 +6,7 @@
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="gray">#918e8e</color>
-    <color name="selected_date_color">#14BFDA</color>
+    <color name="selected_date_color">#14bfda</color>
     <color name="ligth_white">#d2d0d0</color>
     <color name="in_range_color">#75d3e2</color>
     <color name="container_active">#14bfda</color>

@@ -8,6 +8,7 @@ import android.widget.Button;
 import com.satya.invandmodule.fragments.EventDatesFragment;
 import com.satya.invandmodule.fragments.EventLocationFragment;
 import com.satya.invandmodule.fragments.EventMediaFragment;
+import com.satya.invandmodule.fragments.EventSummeryFragment;
 import com.satya.invandmodule.fragments.EventTitleFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -16,6 +17,8 @@ public class MainActivity extends AppCompatActivity {
     public EventTitleFragment eventTitleFragment;
     public EventMediaFragment eventMediaFragment;
     public EventLocationFragment eventLocationFragment;
+    public EventSummeryFragment summeryFragment;
+
     public Button nextBtn , backBtn;
     private String currentFragmentName = "event_title";
 
@@ -28,11 +31,15 @@ public class MainActivity extends AppCompatActivity {
         backBtn.setVisibility(View.INVISIBLE);
 //        eventTitleFragment = new EventTitleFragment();
 //        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventTitleFragment).commit();
-        eventLocationFragment = new EventLocationFragment();
-        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventLocationFragment).commit();
-
+        summeryFragment = new EventSummeryFragment();
+//        eventLocationFragment = new EventLocationFragment();
+//        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventLocationFragment).commit();
+            nextBtn.setVisibility(View.GONE);
+        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,summeryFragment).commit();
 //        eventMediaFragment = new EventMediaFragment();
 //        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventMediaFragment).commit();
+
+
 
 
         nextBtn.setOnClickListener(new View.OnClickListener() {
