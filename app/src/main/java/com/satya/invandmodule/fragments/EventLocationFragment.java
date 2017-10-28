@@ -65,6 +65,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
@@ -94,7 +95,8 @@ public class EventLocationFragment extends ValidatesToMove implements OnMapReady
     Marker mCurrLocationMarker;
     public Button button;
     PlaceAutocompleteFragment autocompleteFragment;
-
+    public LatLng mlatLng;
+    public String mAddress ;
 //    public FusedLocationProviderClient mFusedLocationProviderClient
 
 
@@ -343,6 +345,7 @@ public class EventLocationFragment extends ValidatesToMove implements OnMapReady
                 showAddress(latLng);
                 //move map camera
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,14.0f));
+                mlatLng = latLng;
 
             }
         });
@@ -353,6 +356,7 @@ public class EventLocationFragment extends ValidatesToMove implements OnMapReady
         JsonParse parse = new JsonParse();
         parse.latLng = latLng;
         parse.execute();
+        mlatLng = latLng;
 //        Geocoder geocoder;
 //        List<Address> addresses ;
 //        geocoder = new Geocoder(getContext(), Locale.getDefault());
@@ -451,22 +455,28 @@ public class EventLocationFragment extends ValidatesToMove implements OnMapReady
         showAddress(latLng);
         //move map camera
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,14.0f));
+        mlatLng = latLng;
 
     }
 
     @Override
     public boolean isShowNext() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isShowBack() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isDataValid() {
-        return false;
+        if(mlatLng != null && mAddress!= null && mAddress.length() >0){
+            return true;
+        }else {
+            return false;
+        }
+
     }
 
 
@@ -501,6 +511,7 @@ public class EventLocationFragment extends ValidatesToMove implements OnMapReady
         }
 
         protected void onPostExecute(JSONObject json) {
+            ArrayList<String> address = new ArrayList<>();
             // TODO: check this.exception
             // TODO: do something with the feed
             if (json != null) {
@@ -508,13 +519,22 @@ public class EventLocationFragment extends ValidatesToMove implements OnMapReady
                     // Getting JSON Array
                     user = json.getJSONArray(TAG_ADDRESS);
                     if (user != null) {
+                        for (int i = 0 ; i <  user.length() ; i++){
+                            JSONObject c = user.getJSONObject(i);
+                            if (c != null) {
+                                String addresss = c.getString("formatted_address");
+                                address.add(addresss);
+                            }
+
+                        }
                         JSONObject c = user.getJSONObject(0);
 
-                        if (c != null) {
-                            String address = c.getString("formatted_address");
+                        if (address.size() > 0 && address.get(0).length() > 0) {
+//                           String address = c.getString("formatted_address");
 //                Toast.makeText(getContext(),address,Toast.LENGTH_SHORT).show();
-                            autocompleteFragment.setText((String) address);
-                            markerOptions.title((String) address);
+                            autocompleteFragment.setText(address.get(0));
+                            markerOptions.title(address.get(0));
+                            mAddress = address.get(0);
 
                         }
                     }

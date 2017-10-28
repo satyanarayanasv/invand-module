@@ -34,7 +34,7 @@ public class EventSummeryFragment extends ValidatesToMove {
 
     @Override
     public boolean isShowBack() {
-        return false;
+        return true;
     }
 
     @Override

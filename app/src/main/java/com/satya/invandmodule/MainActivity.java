@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.satya.invandmodule.fragments.EventDatesFragment;
 import com.satya.invandmodule.fragments.EventLocationFragment;
@@ -13,17 +14,21 @@ import com.satya.invandmodule.fragments.EventSummeryFragment;
 import com.satya.invandmodule.fragments.EventTitleFragment;
 import com.satya.invandmodule.fragments.ValidatesToMove;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
 
     public EventDatesFragment eventDatesFragment;
     public EventTitleFragment eventTitleFragment;
     public EventMediaFragment eventMediaFragment;
     public EventLocationFragment eventLocationFragment;
-    public EventSummeryFragment summeryFragment;
+    public EventSummeryFragment eventSummeryFragment;
 
-    public Fragment currentFragment;
+    public ValidatesToMove currentFragment ;
     public Button nextBtn , backBtn;
     private String currentFragmentName = "event_title";
+    ArrayList<Fragment> fragments = new ArrayList<>();
+    public int count = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,16 +37,10 @@ public class MainActivity extends AppCompatActivity {
         nextBtn = (Button)findViewById(R.id.next_btn);
         backBtn = (Button)findViewById(R.id.back_btn);
         backBtn.setVisibility(View.INVISIBLE);
-        eventTitleFragment = new EventTitleFragment();
-        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventTitleFragment).commit();
-//        summeryFragment = new EventSummeryFragment();
-//        eventLocationFragment = new EventLocationFragment();
-//        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventLocationFragment).commit();
-        currentFragment = (ValidatesToMove)eventTitleFragment;
-//            nextBtn.setVisibility(View.GONE);
-//        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,summeryFragment).commit();
-//        eventMediaFragment = new EventMediaFragment();
-//        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventMediaFragment).commit();
+        loadAllFragments();
+        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,fragments.get(count)).commit();
+        currentFragment = (ValidatesToMove)fragments.get(count);
+        showButtons();
 
 
 
@@ -56,65 +55,71 @@ public class MainActivity extends AppCompatActivity {
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                clickBackBtn();
+                clickBackBtn();
             }
         });
     }
 
-    private void clickNext(){
-        if(currentFragment != null){
-//            (ValidatesToMove)currentFragment.is
+
+    private void loadAllFragments(){
+        fragments.clear();
+        eventTitleFragment = new EventTitleFragment();
+        eventDatesFragment = new EventDatesFragment();
+        eventMediaFragment = new EventMediaFragment();
+        eventLocationFragment = new EventLocationFragment();
+        eventSummeryFragment = new EventSummeryFragment();
+
+        fragments.add(eventTitleFragment);
+        fragments.add(eventDatesFragment);
+        fragments.add(eventMediaFragment);
+        fragments.add(eventLocationFragment);
+        fragments.add(eventSummeryFragment);
+    }
+
+    private void clickNextBtn() {
+
+        if (currentFragment.isDataValid()) {
+
+            count = count + 1;
+                if (fragments.get(count).isAdded() || fragments.get(count).isHidden()) {
+                    getSupportFragmentManager().beginTransaction().hide(fragments.get(count - 1)).commit();
+                    getSupportFragmentManager().beginTransaction().show(fragments.get(count)).commit();
+
+                } else {
+                    getSupportFragmentManager().beginTransaction().hide(fragments.get(count - 1)).commit();
+                    getSupportFragmentManager().beginTransaction().add(R.id.frame_layout, fragments.get(count)).commit();
+
+                }
+
+                currentFragment = (ValidatesToMove) fragments.get(count);
+                showButtons();
+    }else {
+            Toast.makeText(getApplicationContext(),"Enter Details Move Next ",Toast.LENGTH_SHORT).show();
         }
 
     }
-    private void clickNextBtn(){
-
-        if(currentFragmentName.equalsIgnoreCase("event_title")){
-
-            if(eventTitleFragment.event_title.getText().toString().length() > 0){
-                backBtn.setVisibility(View.VISIBLE);
-                currentFragmentName = "event_dates";
-                moveToDatesFragmentFromTitle();
-                //moveToEventDatesScreen();
-            }else {
-                eventTitleFragment.showMessage("Fill Title and move to next..");
-            }
-
-        }else if(currentFragmentName.equalsIgnoreCase("event_dates")){
-            //not.
-
-        }
-
-
+    public void showButtons(){
+        nextBtn.setVisibility(currentFragment.isShowNext() ? View.VISIBLE : View.INVISIBLE);
+        backBtn.setVisibility(currentFragment.isShowBack() ? View.VISIBLE : View.INVISIBLE);
     }
+
 
     private void clickBackBtn(){
-        if(currentFragmentName.equalsIgnoreCase("event_dates")){
-            backBtn.setVisibility(View.INVISIBLE);
 
-            moveToTitleFramentFromdates();
-            currentFragmentName = "event_title";
-        }
+       if(count >0){
+           count --;
+           if(fragments.get(count).isAdded() || fragments.get(count).isHidden()){
+               getSupportFragmentManager().beginTransaction().show(fragments.get(count)).commit();
+               getSupportFragmentManager().beginTransaction().hide(fragments.get(count+1)).commit();
+           }else {
+               getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,fragments.get(count)).commit();
+           }
+           currentFragment = (ValidatesToMove)fragments.get(count);
+           showButtons();
+       }
+
 
 
     }
 
-    private void moveToDatesFragmentFromTitle(){
-        getSupportFragmentManager().beginTransaction().hide(eventTitleFragment).commit();
-        if(eventDatesFragment == null){
-            eventDatesFragment = new EventDatesFragment();
-            getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventDatesFragment).commit();
-        }else {
-            getSupportFragmentManager().beginTransaction().show(eventDatesFragment).commit();
-        }
-    }
-
-
-
-    private void moveToTitleFramentFromdates(){
-        eventTitleFragment.event_title.setFocusable(false);
-        eventTitleFragment.event_title.setFocusableInTouchMode(false);
-        getSupportFragmentManager().beginTransaction().hide(eventDatesFragment).commit();
-        getSupportFragmentManager().beginTransaction().show(eventTitleFragment).commit();
-    }
 }

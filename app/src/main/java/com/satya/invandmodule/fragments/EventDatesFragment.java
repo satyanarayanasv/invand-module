@@ -280,16 +280,16 @@ public class EventDatesFragment extends ValidatesToMove {
 
     @Override
     public boolean isShowNext() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isShowBack() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isDataValid() {
-        return false;
+        return true;
     }
 }

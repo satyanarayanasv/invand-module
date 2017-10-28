@@ -12,4 +12,6 @@ public  abstract class ValidatesToMove extends Fragment implements ValidatorMeth
 
 
 
+
+
 }

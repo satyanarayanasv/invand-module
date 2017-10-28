@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +34,7 @@ public class EventMediaFragment extends ValidatesToMove {
     public VideoView videoView;
     public static int SELECT_PICTURE = 100;
     public static final int REQUEST_READ_MEDAI_PERMISSION = 200;
+    public File file = null;
 
     public EventMediaFragment() {
         // Required empty public constructor
@@ -95,11 +97,13 @@ public class EventMediaFragment extends ValidatesToMove {
         if (resultCode == RESULT_OK) {
             if (requestCode == SELECT_PICTURE) {
                 Uri selectedImageUri = data.getData();
-                File file = new File(selectedImageUri.getPath());
-                if (file.toString().toLowerCase().contains("images") || file.toString().toLowerCase().contains(".jpg") && file.toString().toLowerCase().contains(".jpeg")){
+                Log.d("file string",selectedImageUri.toString());
+                if (selectedImageUri.toString().toLowerCase().contains("images") || selectedImageUri.toString().toLowerCase().contains(".jpg") || selectedImageUri.toString().toLowerCase().contains(".jpeg")){
                     showImage(selectedImageUri);
+                    file = new File(selectedImageUri.getPath());
                 }else {
                     showVideo(selectedImageUri);
+                    file = new File(selectedImageUri.getPath());
                 }
             }
         }
@@ -130,18 +134,26 @@ public class EventMediaFragment extends ValidatesToMove {
     }
 
 
+    public File getFile() {
+        return file;
+    }
+
     @Override
     public boolean isShowNext() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isShowBack() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isDataValid() {
-        return false;
+        if(file != null){
+            return true;
+        }else {
+            return false;
+        }
     }
 }

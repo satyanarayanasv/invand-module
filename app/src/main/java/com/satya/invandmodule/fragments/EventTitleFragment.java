@@ -17,12 +17,9 @@ import com.satya.invandmodule.R;
 public class EventTitleFragment extends ValidatesToMove {
     public EditText event_title;
     private String eventTitle;
-    public ValidatesToMove anInterface;
 
 
-    public EventTitleFragment() {
-        // Required empty public constructor
-    }
+
 
     public String getEventTitle() {
         if(event_title != null && event_title.getText().toString().length() > 0){
@@ -38,7 +35,7 @@ public class EventTitleFragment extends ValidatesToMove {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_event_title, container, false);
         event_title = (EditText) view.findViewById(R.id.event_title_edittext);
-       ValidatesToMove.anInterface = this;
+
 
 
 
@@ -53,7 +50,7 @@ public class EventTitleFragment extends ValidatesToMove {
 
     @Override
     public boolean isShowNext() {
-        return false;
+        return true;
     }
 
     @Override
@@ -63,6 +60,9 @@ public class EventTitleFragment extends ValidatesToMove {
 
     @Override
     public boolean isDataValid() {
+        if(event_title.getText().toString().length() >0 ){
+            return true;
+        }
         return false;
     }
 }

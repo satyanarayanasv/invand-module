@@ -5,7 +5,9 @@ package com.satya.invandmodule;
  */
 
 public interface ValidatorMethod  {
+
     public  boolean isShowNext();
     public  boolean isShowBack();
     public  boolean isDataValid();
+
 }
