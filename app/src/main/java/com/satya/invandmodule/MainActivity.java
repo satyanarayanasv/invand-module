@@ -1,5 +1,6 @@
 package com.satya.invandmodule;
 
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -10,6 +11,7 @@ import com.satya.invandmodule.fragments.EventLocationFragment;
 import com.satya.invandmodule.fragments.EventMediaFragment;
 import com.satya.invandmodule.fragments.EventSummeryFragment;
 import com.satya.invandmodule.fragments.EventTitleFragment;
+import com.satya.invandmodule.fragments.ValidatesToMove;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -19,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     public EventLocationFragment eventLocationFragment;
     public EventSummeryFragment summeryFragment;
 
+    public Fragment currentFragment;
     public Button nextBtn , backBtn;
     private String currentFragmentName = "event_title";
 
@@ -29,13 +32,14 @@ public class MainActivity extends AppCompatActivity {
         nextBtn = (Button)findViewById(R.id.next_btn);
         backBtn = (Button)findViewById(R.id.back_btn);
         backBtn.setVisibility(View.INVISIBLE);
-//        eventTitleFragment = new EventTitleFragment();
-//        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventTitleFragment).commit();
-        summeryFragment = new EventSummeryFragment();
+        eventTitleFragment = new EventTitleFragment();
+        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventTitleFragment).commit();
+//        summeryFragment = new EventSummeryFragment();
 //        eventLocationFragment = new EventLocationFragment();
 //        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventLocationFragment).commit();
-            nextBtn.setVisibility(View.GONE);
-        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,summeryFragment).commit();
+        currentFragment = (ValidatesToMove)eventTitleFragment;
+//            nextBtn.setVisibility(View.GONE);
+//        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,summeryFragment).commit();
 //        eventMediaFragment = new EventMediaFragment();
 //        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout,eventMediaFragment).commit();
 
@@ -57,6 +61,12 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void clickNext(){
+        if(currentFragment != null){
+//            (ValidatesToMove)currentFragment.is
+        }
+
+    }
     private void clickNextBtn(){
 
         if(currentFragmentName.equalsIgnoreCase("event_title")){

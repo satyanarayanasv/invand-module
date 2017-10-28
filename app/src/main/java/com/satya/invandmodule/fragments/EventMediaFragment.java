@@ -20,12 +20,14 @@ import android.widget.VideoView;
 
 import com.satya.invandmodule.R;
 
+import java.io.File;
+
 import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class EventMediaFragment extends Fragment {
+public class EventMediaFragment extends ValidatesToMove {
     public Button selectMedia;
     public ImageView imageView;
     public VideoView videoView;
@@ -93,7 +95,8 @@ public class EventMediaFragment extends Fragment {
         if (resultCode == RESULT_OK) {
             if (requestCode == SELECT_PICTURE) {
                 Uri selectedImageUri = data.getData();
-                if (selectedImageUri.getPath().toString().toLowerCase().contains("images") || selectedImageUri.toString().toLowerCase().contains(".jpg") && selectedImageUri.toString().toLowerCase().contains(".jpeg")){
+                File file = new File(selectedImageUri.getPath());
+                if (file.toString().toLowerCase().contains("images") || file.toString().toLowerCase().contains(".jpg") && file.toString().toLowerCase().contains(".jpeg")){
                     showImage(selectedImageUri);
                 }else {
                     showVideo(selectedImageUri);
@@ -102,6 +105,7 @@ public class EventMediaFragment extends Fragment {
         }
 
     }
+
 
     private void showVideo(Uri path){
         imageView.setVisibility(View.GONE);
@@ -123,5 +127,21 @@ public class EventMediaFragment extends Fragment {
             return cursor.getString(column_index);
         } else return null;
 
+    }
+
+
+    @Override
+    public boolean isShowNext() {
+        return false;
+    }
+
+    @Override
+    public boolean isShowBack() {
+        return false;
+    }
+
+    @Override
+    public boolean isDataValid() {
+        return false;
     }
 }

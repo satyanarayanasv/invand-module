@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,11 +24,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
@@ -52,6 +53,19 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.satya.invandmodule.R;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 import static android.content.ContentValues.TAG;
@@ -59,7 +73,7 @@ import static android.content.ContentValues.TAG;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class EventLocationFragment extends Fragment implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
+public class EventLocationFragment extends ValidatesToMove implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
     public GoogleMap mMap;
     public static final int REQUEST_LOCATION = 100;
     public LocationManager manager;
@@ -70,15 +84,16 @@ public class EventLocationFragment extends Fragment implements OnMapReadyCallbac
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     public int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
+    private static final String TAG_ADDRESS = "results";
 
-
-
+    JSONArray user = null;
     SupportMapFragment mapFrag;
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
     Marker mCurrLocationMarker;
     public Button button;
+    PlaceAutocompleteFragment autocompleteFragment;
 
 //    public FusedLocationProviderClient mFusedLocationProviderClient
 
@@ -99,11 +114,11 @@ public class EventLocationFragment extends Fragment implements OnMapReadyCallbac
         mapFragment.getMapAsync(this);
 
 
-
-
-
-        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment) getActivity().getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+        autocompleteFragment = (PlaceAutocompleteFragment) getActivity().getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
         autocompleteFragment.setHint("Search your Place Here .");
+        ImageView searchIcon = (ImageView) ((LinearLayout) autocompleteFragment.getView()).getChildAt(0);
+        searchIcon.setImageDrawable(getActivity().getResources().getDrawable(R.drawable.ic_location_on_gary_24dp));
+
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
@@ -120,28 +135,28 @@ public class EventLocationFragment extends Fragment implements OnMapReadyCallbac
         });
 
 
-
-
         return view;
     }
 
-    private void showLocation(Place place){
+    private void showLocation(Place place) {
 
         LatLng latLng = place.getLatLng();
-        if(markerOptions == null){
+        if (markerOptions == null) {
             markerOptions = new MarkerOptions();
         }
         markerOptions.position(latLng);
-        markerOptions.title((String)place.getName());
+//        markerOptions.title((String)place.getName());
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
 
         if (mCurrLocationMarker != null) {
             mCurrLocationMarker.remove();
         }
         mCurrLocationMarker = mMap.addMarker(markerOptions);
+        autocompleteFragment.setText((String) place.getAddress());
+        markerOptions.title((String) place.getAddress());
 
         //move map camera
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,20));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14.f));
 
 
     }
@@ -158,11 +173,11 @@ public class EventLocationFragment extends Fragment implements OnMapReadyCallbac
 
     }
 
-    public void settingsrequest(){
+    public void settingsrequest() {
         LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(30 * 1000);
-        locationRequest.setFastestInterval(5 * 1000);
+//        locationRequest.setInterval(30 * 1000);
+//        locationRequest.setFastestInterval(5 * 1000);
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(locationRequest);
         builder.setAlwaysShow(true); //this is the key ingredient
@@ -199,7 +214,6 @@ public class EventLocationFragment extends Fragment implements OnMapReadyCallbac
         });
 
     }
-
 
 
     @Override
@@ -239,10 +253,20 @@ public class EventLocationFragment extends Fragment implements OnMapReadyCallbac
 
             }
             case REQUEST_CHECK_SETTINGS:
-                switch (requestCode){
+                switch (requestCode) {
                     case Activity.RESULT_OK:
                         if (mGoogleApiClient == null) {
                             buildGoogleApiClient();
+                        }
+                        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            // TODO: Consider calling
+                            //    ActivityCompat#requestPermissions
+                            // here to request the missing permissions, and then overriding
+                            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                            //                                          int[] grantResults)
+                            // to handle the case where the user grants the permission. See the documentation
+                            // for ActivityCompat#requestPermissions for more details.
+                            return;
                         }
                         mMap.setMyLocationEnabled(true);
                     case Activity.RESULT_CANCELED:
@@ -275,25 +299,6 @@ public class EventLocationFragment extends Fragment implements OnMapReadyCallbac
         }
     }
 
-    private void setMap() {
-
-//        manager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
-//        criteria = new Criteria();
-//        provider = String.valueOf(manager.getBestProvider(criteria, true));
-//        mMap.setMyLocationEnabled(true);
-//        location = manager.getLastKnownLocation(provider);
-//        if (location != null) {
-//            double latitude = location.getLatitude();
-//            double longitude = location.getLongitude();
-//            LatLng latLng = new LatLng(latitude, longitude);
-//            mMap.addMarker(new MarkerOptions().position(latLng).title("Marker in Sydney"));
-//            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-//            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
-//        }
-
-
-    }
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -320,35 +325,59 @@ public class EventLocationFragment extends Fragment implements OnMapReadyCallbac
             }
             mMap.setMyLocationEnabled(true);
 
-//            settingsrequest();
-//            setMap();
         }
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-
-
                 if(markerOptions == null){
                     markerOptions = new MarkerOptions();
                 }
                 markerOptions.position(latLng);
-                markerOptions.title("selected location");
                 markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
 
                 if (mCurrLocationMarker != null) {
                     mCurrLocationMarker.remove();
                 }
                 mCurrLocationMarker = mMap.addMarker(markerOptions);
-
+                showAddress(latLng);
                 //move map camera
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,20));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,14.0f));
 
             }
         });
 
 
     }
+    public void showAddress(LatLng latLng){
+        JsonParse parse = new JsonParse();
+        parse.latLng = latLng;
+        parse.execute();
+//        Geocoder geocoder;
+//        List<Address> addresses ;
+//        geocoder = new Geocoder(getContext(), Locale.getDefault());
+//        try {
+//                addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+//                String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+//                String city = addresses.get(0).getLocality();
+//                String state = addresses.get(0).getAdminArea();
+//                String country = addresses.get(0).getCountryName();
+//                String postalCode = addresses.get(0).getPostalCode();
+//                String knownName = addresses.get(0).getFeatureName();
+//                if (knownName != null && knownName.length() > 0) {
+//                    autocompleteFragment.setText((String) address);
+//                    markerOptions.title((String) address);
+//                }
+//
+//
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+
+
+    }
+
+
 
     public void  checkPermissions() {
         if (ContextCompat.checkSelfPermission(getContext(),Manifest.permission.ACCESS_FINE_LOCATION)
@@ -416,13 +445,126 @@ public class EventLocationFragment extends Fragment implements OnMapReadyCallbac
              markerOptions = new MarkerOptions();
         }
         markerOptions.position(latLng);
-        markerOptions.title("Current Position");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+//        markerOptions.title("Current Position");
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
         mCurrLocationMarker = mMap.addMarker(markerOptions);
-
+        showAddress(latLng);
         //move map camera
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,20));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,14.0f));
 
+    }
+
+    @Override
+    public boolean isShowNext() {
+        return false;
+    }
+
+    @Override
+    public boolean isShowBack() {
+        return false;
+    }
+
+    @Override
+    public boolean isDataValid() {
+        return false;
+    }
+
+
+    public class JsonParse  extends AsyncTask<String, String, JSONObject> {
+        LatLng latLng ;
+        private Exception exception;
+
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+
+        }
+
+
+        protected JSONObject doInBackground(String... urls) {
+            JSONObject json = null;
+            String url = "http://maps.googleapis.com/maps/api/geocode/json?latlng="+latLng.latitude+","+latLng.longitude+"&sensor=true%22";
+            JsonParser jParser = new JsonParser();
+
+                // Getting JSON from URL
+            try {
+                 json = jParser.getJSONFromUrl(url);
+                return json;
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+
+            return json;
+        }
+
+        protected void onPostExecute(JSONObject json) {
+            // TODO: check this.exception
+            // TODO: do something with the feed
+            if (json != null) {
+                try {
+                    // Getting JSON Array
+                    user = json.getJSONArray(TAG_ADDRESS);
+                    if (user != null) {
+                        JSONObject c = user.getJSONObject(0);
+
+                        if (c != null) {
+                            String address = c.getString("formatted_address");
+//                Toast.makeText(getContext(),address,Toast.LENGTH_SHORT).show();
+                            autocompleteFragment.setText((String) address);
+                            markerOptions.title((String) address);
+
+                        }
+                    }
+
+                    // Storing  JSON item in a Variable
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+    public class JsonParser{
+        public JSONObject getJSONFromUrl(String strings) {
+            JSONObject topLevel = null;
+            // Making HTTP request
+            try {
+                URL url = new URL(strings);
+                // defaultHttpClient
+                HttpURLConnection httpClient = (HttpURLConnection) url.openConnection();
+                InputStream stream = new BufferedInputStream(httpClient.getInputStream());
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
+                StringBuilder builder = new StringBuilder();
+                String inputString;
+                while ((inputString = bufferedReader.readLine()) != null) {
+                    builder.append(inputString);
+                }
+
+                 topLevel = new JSONObject(builder.toString());
+//                 main = topLevel.getJSONObject("results");
+
+                httpClient.disconnect();
+
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+
+            // return JSON String
+            return topLevel;
+
+        }
     }
 
 

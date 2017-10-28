@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-        <item
+    <item
             android:bottom="0.0dp"
             android:left="0.0dp"
             android:right="0.0dp"
@@ -663,23 +663,37 @@
             android:left="15.0dp"
             android:right="15.0dp"
             android:top="15.0dp">
+
+
             <shape xmlns:android="http://schemas.android.com/apk/res/android"
                 android:shape="rectangle">
-                <gradient
-                    android:startColor="#ffffff"
-                    android:endColor="#f1fcfd"
-                    android:angle="225"
-                   android:type="linear"/>
+                <solid android:color="@color/white"/>
+                <!--<size android:height="50dp" android:width="30dp"/>-->
+                <corners
+                    android:bottomLeftRadius="5dp"
+                    android:bottomRightRadius="5dp"
+                    android:topLeftRadius="5dp"
+                    android:topRightRadius="5dp"/>
 
 
             </shape>
-
-
         </item>
 
-       <!--<item>-->
+        <!--<item  android:bottom="15dp"-->
+        <!--android:left="10dp"-->
+        <!--android:right="10dp"-->
+        <!--android:top="10dp">-->
 
-    <!--</item>-->
+
+
+        <!--<shape>-->
+        <!--<solid android:color="@color/white" />-->
+        <!--<corners android:radius="5dp" />-->
+        <!--</shape>-->
+        <!--</item>-->
+
+
+
 
 
 </layer-list>

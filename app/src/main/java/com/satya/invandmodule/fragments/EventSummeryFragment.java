@@ -12,7 +12,7 @@ import com.satya.invandmodule.R;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class EventSummeryFragment extends Fragment {
+public class EventSummeryFragment extends ValidatesToMove {
 
 
     public EventSummeryFragment() {
@@ -27,4 +27,18 @@ public class EventSummeryFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_event_summery, container, false);
     }
 
+    @Override
+    public boolean isShowNext() {
+        return false;
+    }
+
+    @Override
+    public boolean isShowBack() {
+        return false;
+    }
+
+    @Override
+    public boolean isDataValid() {
+        return false;
+    }
 }

@@ -22,7 +22,7 @@ import java.util.Date;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class EventDatesFragment extends Fragment {
+public class EventDatesFragment extends ValidatesToMove {
     public CustomCalendar customCalendar;
     public CustomTimePicker timePicker;
     public TextView startDateText , endDateText;
@@ -278,4 +278,18 @@ public class EventDatesFragment extends Fragment {
         updateUIDates();
     }
 
+    @Override
+    public boolean isShowNext() {
+        return false;
+    }
+
+    @Override
+    public boolean isShowBack() {
+        return false;
+    }
+
+    @Override
+    public boolean isDataValid() {
+        return false;
+    }
 }
